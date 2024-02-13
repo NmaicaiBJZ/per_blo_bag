@@ -1,0 +1,57 @@
+/*此css用于修改markdown转换后的css*/
+
+.article_content *{
+    color: rgb(63, 63, 63);
+}
+.article_content h1{
+    margin: 30px 0 30px 30px;
+    font-size: 200%;
+}
+.article_content h2{
+    margin: 0 0 20px 40px;
+    font-size: 180%;
+}
+.article_content h3{
+    margin: 0 0 20px 50px;
+    font-size: 160%;
+}
+.article_content h4{
+    margin: 0 0 20px 60px;
+    font-size: 140%;
+}
+.article_content h5{
+    margin: 0 0 20px 70px;
+    font-size: 130%;
+}
+.article_content p{
+    margin: 0 0 10px 70px;
+    font-size: 120%;
+}
+.article_content table{
+    margin: 20px 0 20px 80px;
+    border: 1px dashed  rgba(201, 201, 201, 0.507);
+    padding: 20px;
+}
+.article_content table thead tr th{
+    border-bottom: 3px solid rgba(201, 201, 201, 0.507);
+    text-align: center;
+}
+.article_content table tbody tr th{
+    padding: 5px;
+}
+.article_content li{
+    margin: 0 0 10px 80px;
+    font-size: 120%;
+}
+.article_content pre{
+    margin: 0 90px 20px 90px;
+    font-size: 150%;
+    background-color: rgb(214, 214, 214);
+    padding: 40px;
+}
+.article_content p code{
+    margin: 0 5px;
+    font-size: 120%;
+    padding: 3px 10px;
+    background-color: rgba(209, 209, 209, 0.562);
+}

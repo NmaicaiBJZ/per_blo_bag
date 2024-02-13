@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./transferdir/overall_config.css"/>
+    <link rel="stylesheet" type="text/css" href="./transferdir/home_css.css">
+    <title>Document</title>
+</head>
+<body>
+    <aside class="sidebar col-3">
+        <div class="scroll_con">
+        <p class="user_name">rm 777</p>
+        <nav class="hand_menu">
+            <a href="#" class="ico_home">首页</a>
+            <a href="#" class="ico_Bokeyuan">博客园</a>
+            <a href="#" class="ico_github">github</a>
+            <a href="#" class="ico_setting">管理</a>
+        </nav>
+        <div class="sidebar_new_title sidebar_count">
+            <!-- 因为需要指定高度才能有动画，这个新随笔高度需要6个，高度大概310px -->
+            <!-- <p class="sidebar_title">最新随笔<img src="./imagebag/triangle.png" class="menu_rotation"/></p>
+            <p class="title_count">python</p>
+            <p class="title_count">热啊</p>
+            <p class="title_count">八十多</p>
+            <p class="title_count">飞洒发我</p>
+            <p class="title_count">发顺丰</p>
+            <p class="title_count">java</p> -->
+        </div>
+        <div class="sidebar_title_classify sidebar_count">
+            <p class="sidebar_title">随笔分类<img src="./imagebag/triangle.png" class="menu_rotation"/></p>
+            <ul id="classify_create">
+                <!-- <li>python</li>
+                <li>123</li>
+                <ul>
+                <li>afsaf</li>
+                <li>afsaf</li>
+                </ul>
+                <li>sss</li>
+                <ul>
+                <li>afsaf</li>
+                <li>afsaf</li>
+                </ul> -->
+            </ul>
+        </div>
+        <!-- <div class="scroll_bar_con">
+            <div class="scroll_bar"></div>
+        </div> -->
+        </div>
+    </aside>
+    <div id="sidebar_call">三</div>
+    <article class="primary col-12" >
+        <div class="primary_page"></div>
+        <div class="content col-8" id="cont"></div>
+        <div class="page_turning col-8">
+            <button class="endPage" onclick="endpag()" >下一页</button>
+        </div>
+    </article>
+    <footer class="col-8">
+        <p>Copyright © 2024 rm777</p>
+        <p>Powered by python3.10 socket WSGI  <span class="errtips">ღゝ◡╹)ノ♡</span></p>
+        <p>Theme version: v 1.0 / Loading theme version: v 1.0</p>
+    </footer>
+</body>
+<script src="./transferdir/sidebar_use.js"></script>
+<script>
+    // 获取 json 文件
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            // 当获取到 json 文件的时候处理以下类容
+            const receiveJSONopj = JSON.parse(this.responseText);
+            // 将获取到的 json 文件的内容放置到正文中
+            let html = '';
+            // 用于分页内容的对象，每十个为一组
+            let page_group = [];
+            let num_group = -1;
+            // 将 json 文件的内容放入到侧边栏中
+            // 侧边栏的新随笔
+            let sidebar_new_title = '';
+            let titlearr = [];
+            // 侧边栏的分类目录算法，创建分类树，将传进来的目录进行分类，整理成一个树
+            function convertData(inputData) {
+                const result = {
+                    name: 'orgin',
+                    point: [],
+                    t:'',
+                    file_path:''
+                };
+
+                inputData.forEach(path => {
+                    const pathArray = path[0].split('/').filter(Boolean);
+                    let currentLevel = result;
+
+                    for (let i = 0; i < pathArray.length; i++) {
+                    const segment = pathArray[i];
+
+                    let existingPoint = currentLevel.point.find(item => item.name === segment);
+
+                    if (!existingPoint) {
+                        existingPoint = {
+                        name: segment,
+                        point: [],
+                        t:'',
+                        file_path:''
+                    };
+                        if(segment == pathArray.slice(-1)){
+                            existingPoint.t = path[1];
+                            existingPoint.file_path = path[2];
+                        }
+                        currentLevel.point.push(existingPoint);
+                    }
+
+                    currentLevel = existingPoint;
+                    }
+                });
+
+                return result;
+            }
+            // 对分类好的目录进行添加 html
+            function classify_create(classify_tree){
+                // 如果当前的节点不存在子节点
+                if(classify_tree.point == false){
+                    return `<li><a href="${classify_tree.file_path}">${classify_tree.t}<a></li>`;
+                }else{
+                    recode = `<li>${classify_tree.name}</li><ul>`;
+                    for(let tree_point of classify_tree.point){
+                       recode += classify_create(tree_point);
+                    }
+                    return recode += '</ul>';
+                }
+            }
+            // 收集分类目录
+            let file_path = []
+
+            for(let i = 0;i<receiveJSONopj.length;i++){
+                const item = receiveJSONopj[i];
+                
+                
+                // 用于将最新的6个数据放入到侧边栏中
+                titlearr.push({tit:item['title'],time:Date.parse(item['time']),path:item['path']+'/_markd_'+item['filename']});
+
+                // 用于处理侧边栏的分类
+                file_path.push([(item['path']+'/'+item['filename']).match(/\.\/resources(\/.*)/)[1],item['title'],item['path']+'/_markd_'+item['filename']])
+
+                // 用于构建主要内容的分页情况
+                if(i%10 == 0){
+                    num_group ++;
+                    page_group.push([]);
+                    page_group[num_group].push(item);
+                }else{
+                    page_group[num_group].push(item);
+                }
+            }
+
+            // 对于分页每个分页进行处理,便于以后升级
+            for(let i = 0;i<page_group.length;i++){
+                html += `<div id='page_${i+1}' style='display:none'>`;
+                for(const item of page_group[i]){
+                    // 用于将 json 获取的内容放入到正文中
+                    html += `
+                    <section>
+                        <h3 onclick='location.href=("${item['path']}/_markd_${item['filename']}")'>${item['title']}</h3>
+                        <p>
+                            posted @ ${item['time']}  rm777
+                        </p>
+                        <article>
+                            摘要： ${item['abstract']}
+                            <a href="${item['path']}/_markd_${item['filename']}">阅读全文>></a>
+                        </article>
+                    </section>
+                    <p class='lien_l'></p>
+                    `;
+                }
+                
+                html += '</div>';
+            }
+            
+            document.getElementById("cont").innerHTML = html;
+
+            // 最新随笔 处理
+            new_title = titlearr.sort(function(a,b){return b.time - a.time});
+            sidebar_new_title = `
+            <p class="sidebar_title">最新随笔<img src="./imagebag/triangle.png" class="menu_rotation"/></p>
+            <p class="title_count"><a href='${new_title[0].path}'>${new_title[0].tit}</a></p> 
+            <p class="title_count"><a href='${new_title[1].path}'>${new_title[1].tit}</a></p>
+            <p class="title_count"><a href='${new_title[2].path}'>${new_title[2].tit}</a></p>
+            <p class="title_count"><a href='${new_title[3].path}'>${new_title[3].tit}</a></p>
+            <p class="title_count"><a href='${new_title[4].path}'>${new_title[4].tit}</a></p>
+            <p class="title_count"><a href='${new_title[5].path}'>${new_title[5].tit}</a></p>
+            `
+            document.querySelector('.sidebar_new_title').innerHTML = sidebar_new_title;
+
+            // 分类项处理,获取树状结构
+            const classify_tree = convertData(file_path);
+            // 对树状结构进行显示
+            let classify_data = ''
+            for(const a of classify_tree.point){
+                classify_data += classify_create(a);
+            }
+
+            document.getElementById('classify_create').innerHTML = classify_data;
+
+            document.getElementById('page_1').style = 'display:block';
+            // 调用sidebar_use文件中为三角形型变换的方法
+            add_rotation_sp();
+            // 调用分类下拉列表变化方法
+            add_class_list_am();
+        }
+    }
+    xhttp.open("GET","./resources/user.json",true)  
+    xhttp.send()
+
+    // 分页按钮
+    var coun_num = 2;
+    function endpag(){
+        document.getElementById('page_'+coun_num).style= 'display:block';
+        coun_num ++;
+    }
+</script>
+<script async="" type="text/javascript" src="./transferdir/coloured_ribbon.js"></script>
+</html>

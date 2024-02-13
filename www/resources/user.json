@@ -1,0 +1,79 @@
+[
+    {
+        "filename":"python_basis.md",
+        "path":"./resources/python",
+        "title":"python 基础",
+        "abstract":"",
+        "time":"2023-12-2"
+    },
+    {
+        "filename":"chapter_7.md",
+        "path":"./resources",
+        "title":"Web 应用漏洞攻防",
+        "abstract":"",
+        "time":"2023-12-1"
+    },
+    {
+        "filename":"python_format.md",
+        "path":"./resources/python",
+        "title":"字符串格式化",
+        "abstract":"python 中提供format函数来格式化字符串。",
+        "time":"2023-12-3"
+    },
+    {
+        "filename":"marked_js.md",
+        "path":"./resources",
+        "title":"marked.js 使用手册",
+        "abstract":"",
+        "time":"2023-12-2"
+    },
+    {
+        "filename":"beautifulSoup_ex.md",
+        "path":"./resources/python",
+        "title":"BeautifulSoup 模块",
+        "abstract":"",
+        "time":"2024-1-24"
+    },
+    {
+        "filename":"pillow_pl.md",
+        "path":"./resources/python",
+        "title":"pillow创建对象",
+        "abstract":"",
+        "time":"2024-1-24"
+    },
+    {
+        "filename":"pymysql.md",
+        "path":"./resources/python",
+        "title":"pymysql 模块",
+        "abstract":"",
+        "time":"2024-1-25"
+    },
+    {
+        "filename":"python_re.md",
+        "path":"./resources/python",
+        "title":"正则表达式",
+        "abstract":"",
+        "time":"2024-1-26"
+    },
+    {
+        "filename":"argparse.md",
+        "path":"./resources/python/systemtool",
+        "title":"argparse -- 命令行选项、参数和子命令解析器",
+        "abstract":"",
+        "time":"2024-1-26"
+    },
+    {
+        "filename":"multiprocessing.md",
+        "path":"./resources/python/systemtool",
+        "title":"multiprocessing 多进程",
+        "abstract":"",
+        "time":"2024-1-26"
+    },
+    {
+        "filename":"socket.md",
+        "path":"./resources/python/webtool",
+        "title":"socket",
+        "abstract":"",
+        "time":"2024-1-26"
+    }
+]

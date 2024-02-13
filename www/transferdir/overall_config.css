@@ -1,0 +1,166 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*侧边栏导航*/
+.sidebar{
+    position: fixed;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.918);
+    max-width: 400px;
+    display: none;
+    transition: width 0.3s ease;
+}
+.scroll_con{
+    position: relative;
+    transition: transform 0.3s ease;
+}
+.user_name{
+    margin: 30px 0 0 40px;
+    font-size: 40px;
+    font-weight: 600;
+    color: black;
+    font-family: 'Trebuchet MS';
+}
+.hand_menu{
+    margin: 40px 0 0 70px;
+}
+.hand_menu > a{
+    display: flex;
+    text-decoration: none;
+    color: black;
+    margin: 30px 0 0 0;
+    font-size: 20px;
+    line-height: 20px;
+    &::before{
+        content: '';
+        display: block;
+        margin: -5px 20px 0 0;
+        background-repeat: no-repeat;
+        width: 36px;
+        height: 36px;
+    }
+}
+.ico_home::before{
+    background-image: url(../imagebag/ico_nav.png);
+}
+.ico_Bokeyuan::before{
+    background-image: url(../imagebag/ico_nav.png);
+    background-position: -42px 0;
+}
+.ico_github::before{
+    background-image: url(../imagebag/ico_nav.png);
+    background-position: -78px 0;
+}
+.ico_setting::before{
+    background-image: url(../imagebag/ico_nav.png);
+    background-position: -115px 0;
+}
+.sidebar{
+    z-index: 20;
+}
+/*添加动画，当触发单击事件，下拉列表收缩,需要指定高度才能有动画*/
+.sidebar_count{
+    margin: 40px 0 0 40px;
+    overflow: hidden;
+    transition: height 0.2s linear;
+}
+.sidebar_count_anim{
+    height: 35px;
+}
+
+.sidebar_count a:link,.sidebar_count a:visited{
+    text-decoration: none;
+    color: black;
+}
+.sidebar_count a:hover{
+    color: rgba(0, 0, 0, 0.452);
+    font-size: 110%;
+}
+
+.sidebar_count > *{
+    color: black;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/*添加的动画，当触发单击事件，为三角型添加效果旋转*/
+.menu_rotation{
+    width: 20px;
+    margin-left: 10px;
+    transition: all 0.2s linear;
+}
+.menu_rotation_spin{
+    transform: rotate(180deg);
+}
+
+.title_count,.sidebar_count > ul *{
+    margin: 20px 0 0 25px ;
+}
+
+/*为每个列表添加下拉列表收缩动画*/
+.sidebar_count > ul ul{
+    margin-top: 0;
+    overflow: hidden;
+}
+.classified_list_anim{
+    height: 0px;
+}
+
+/*自定义的滚动条*/
+/* .scroll_bar_con{
+    position: absolute;
+    width:10px;
+    height:490px;
+    right:5px;
+    top:5px;
+    border: 2px solid black;
+}
+.scroll_bar{
+    width:10px;
+    height:200px;
+    background-color:#ccc;
+    position:absolute;
+    left:0;
+    top:0;
+    cursor:pointer;
+    border-radius:5px;
+} */
+
+#sidebar_call{
+    display: inline-block;
+    border: #ffffffab solid 2px;
+    border-radius: 2px;
+    width: 60px;
+    height: 30px;
+    position: fixed;
+    top: 50px;
+    left: 40px;
+    text-align: center;
+    color: #ffffffab;
+    line-height: 23px;
+    cursor: pointer;
+}
+
+/* 针对桌面： */
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
+
+@media only screen and (max-width: 850px) {
+    /* 针对手机： */
+        [class*="col-"] {
+            width: 100%;
+        }
+}

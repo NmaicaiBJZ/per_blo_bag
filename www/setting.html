@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            background-color: aliceblue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+        .count{
+            background-color: white;
+            box-shadow: 5px 5px 10px rgba(119, 119, 119, 0.39);
+            height: 80%;
+            width: 90%;
+        }
+        .sidebar{
+            overflow: hidden;
+            height: 100%;
+            width: 20%;
+            float: left;
+        }
+        .scroll_con{
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .scroll_con > p{
+            margin: 30px 0 0 50px;
+            font-size: 20px;
+        }
+        .scroll_con li{
+            list-style: none;
+            margin: 20px 0 0 70px;
+        }
+        .scroll_con ul{
+            margin-left: 20px;
+        }
+        #add_article > *{
+            display: block;
+        }
+        #add_article > label{
+            margin: 40px 0 0 25%;
+        }
+        #add_article > input{
+            margin: 30px 0 0 30%;
+            width: 30%;
+            height: 30px;
+        }
+        #add_article textarea{
+            margin: 30px 0 0 30%;
+            width: 60%;
+            min-height: 300px;
+            resize: none;
+        }
+        .button{
+            width: 30%;
+            margin: 40px auto;
+        }
+        .button input{
+            padding: 5px 20px;
+            margin-left: 30px;
+        }
+    </style>
+    <title>添加文章</title>
+</head>
+<body>
+<div class="count">
+    <div class="sidebar">
+        <div class="scroll_con">
+            <p>添加文章</p>
+            <p>修改文章</p>
+            <div id="classify_count"></div>
+        </div>
+    </div>
+    <form action="/submit_article" method="post" id="add_article" style="display: none;">
+
+        <label for="article_title">文章标题:</label>
+        <input type="text" id="article_title" name="article_title" required>
+        
+        <label for="article_summary">文章摘要:</label>
+        <textarea id="article_summary" name="article_summary" required></textarea>
+        
+        <label for="article_content">文章内容:</label>
+        <textarea id="article_content" name="article_content" required></textarea>
+        <label for="article_category">文章分类:</label>
+        <input type="text" id="article_category" name="article_category" required>
+        <div class="button">
+            <input type="submit" value="提交">
+        </div>
+    </form>
+
+    <form action="/submit_article" method="post" id="add_article"]>
+
+        <label for="article_title">文章标题:</label>
+        <input type="text" id="article_title" name="article_title" required>
+        
+        <label for="article_summary">文章摘要:</label>
+        <textarea id="article_summary" name="article_summary" required></textarea>
+        
+        <label for="article_content">文章内容:</label>
+        <textarea id="article_content" name="article_content" required></textarea>
+        <label for="article_category">文章分类:</label>
+        <input type="text" id="article_category" name="article_category" required>
+        <div class="button">
+            <input type="submit" value="确认修改">
+            <input type="submit" value="删除">
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    // 整个侧边栏
+    let sidebar = document.querySelector('.sidebar');
+    // 用于侧边栏的滚动
+    let scrollY = 0;
+    // 需要上下移动内容
+    let scroll_con = document.querySelector('.scroll_con');
+    sidebar.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        // 根据滚轮方向调整滚动值
+        scrollY -= e.deltaY;
+        // 限制滚动范围
+        scrollY = Math.min(0, Math.max(scrollY, -scroll_con.clientHeight + sidebar.clientHeight));
+        // 更新滚动位置
+        scroll_con.style.transform = `translateY(${scrollY}px)`;
+        })
+    
+    // 文本框自适应高度
+    let textarea = document.querySelectorAll('textarea');
+    for(const i of textarea){
+        i.addEventListener('input', (e) => {
+            i.style.height = '100px';
+            i.style.height = e.target.scrollHeight + 'px';
+        });
+    }
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            // 当获取到 json 文件的时候处理以下类容
+            const receiveJSONopj = JSON.parse(this.responseText);
+
+            // 侧边栏的分类目录算法，创建分类树，将传进来的目录进行分类，整理成一个树
+            function convertData(inputData) {
+                const result = {
+                    name: 'orgin',
+                    point: [],
+                    t:'',
+                    file_path:''
+                };
+
+                inputData.forEach(path => {
+                    const pathArray = path[0].split('/').filter(Boolean);
+                    let currentLevel = result;
+
+                    for (let i = 0; i < pathArray.length; i++) {
+                    const segment = pathArray[i];
+
+                    let existingPoint = currentLevel.point.find(item => item.name === segment);
+
+                    if (!existingPoint) {
+                        existingPoint = {
+                        name: segment,
+                        point: [],
+                        t:'',
+                        file_path:''
+                    };
+                        if(segment == pathArray.slice(-1)){
+                            existingPoint.t = path[1];
+                            existingPoint.file_path = path[2];
+                        }
+                        currentLevel.point.push(existingPoint);
+                    }
+
+                    currentLevel = existingPoint;
+                    }
+                });
+
+                return result;
+            }
+            // 对分类好的目录进行添加 html
+            function classify_create(classify_tree){
+                // 如果当前的节点不存在子节点
+                if(classify_tree.point == false){
+                    return `<li><a href="${classify_tree.file_path}">${classify_tree.t}<a></li>`;
+                }else{
+                    recode = `<li>${classify_tree.name}</li><ul>`;
+                    for(let tree_point of classify_tree.point){
+                       recode += classify_create(tree_point);
+                    }
+                    return recode += '</ul>';
+                }
+            }
+            // 收集分类目录
+            let file_path = []
+
+            for(let i = 0;i<receiveJSONopj.length;i++){
+                const item = receiveJSONopj[i];
+
+                // 用于处理侧边栏的分类
+                file_path.push([(item['path']+'/'+item['filename']).match(/\.\/resources(\/.*)/)[1],item['title'],item['path']+'/'+item['filename']]);
+            }
+
+             // 分类项处理,获取树状结构
+             const classify_tree = convertData(file_path);
+            // 对树状结构进行显示
+            let classify_data = '';
+            for(const a of classify_tree.point){
+                classify_data += classify_create(a);
+            }
+            document.getElementById('classify_count').innerHTML = classify_data;
+        }
+    }
+    xhttp.open("GET","./resources/user.json",true)  
+    xhttp.send()
+</script>
+</html>

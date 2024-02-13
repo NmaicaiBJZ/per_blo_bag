@@ -1,0 +1,1 @@
+[numpy入门](http://c.biancheng.net/numpy/)
