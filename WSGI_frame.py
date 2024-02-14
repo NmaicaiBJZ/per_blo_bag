@@ -19,15 +19,14 @@ def route(url):
     return set_func
 			
 @route("/home.html")
-def index(static_path,ret):
+def index(static_path,ret,opt):
     with open(static_path+'/home.html') as f:
         content = f.read()
-    
     return content
 
 # 匹配 /ras/fas/_markd_fasf.md 文件
 @route("(.*?)_markd_(.*?.md)")
-def markdown_handle(static_path,ret):
+def markdown_handle(static_path,ret,opt):
     # with open(static_path+ret.group(1)+ret.group(2)) as f:
     #     md_content = f.read()
     with open(static_path+'/read.html') as f:
@@ -37,6 +36,33 @@ def markdown_handle(static_path,ret):
 
     return content
     
+# 用于处理登录请求，如果登录成功返回cookie，使浏览器保存，如果登录失败则返回错误页面
+@route("/login.php")
+def page_login(static_path,ret,opt):
+    if opt['login_true']:
+        with open(static_path+'/setting.html') as f:
+            content = f.read()
+        opt['start_respense']('200 OK',[('Content-Type','text/html;charset=utf-8'),('Set-Cookie','login_cookie')])
+    else:
+        with open(static_path+'/login.html') as f:
+            content = f.read()
+        content = re.sub(r'\{%login_error%\}','登录失败，用户名或者密码错误',content) 
+
+    return content
+
+# 用于判断cookie是否通过，如果通过直接给予settin页面，如果不通过将返回登录页面，让用户验证通过
+@route("/setting.html")
+def login_judge(static_path,ret,opt):
+    print(opt['login_true'])
+    if opt['login_true']:
+        with open(static_path+'/setting.html') as f:
+            content = f.read()
+    else:
+        with open(static_path+'/login.html') as f:
+            content = f.read()
+    content = re.sub(r'\{%login_error%\}','',content)    
+
+    return content
 
 def application(env,start_respense):
     # 返回响应的表头
@@ -45,13 +71,19 @@ def application(env,start_respense):
     # 请求的文件名
     file_name = env['PATH_INFO']
     static_path = env['static_path']
+    # 设置字典
+    opt = dict()
+    # 字典设置操作是否成功登录
+    opt["login_true"] = env["login_true"]
+    # 字典设置响应的表头
+    opt["start_respense"] = start_respense
 
     try:
         for url, func in URL_FUNC_DICT.items():   
 
             ret = re.match(url, file_name)
             if ret:             #判断ret是否为空，不为空调用func引用的函数
-                return func(static_path,ret)
+                return func(static_path,ret,opt)
         else:
                 with open(static_path+file_name) as f:
                     content = f.read()

@@ -177,16 +177,17 @@
 <body>
 	<div class="loginBox">
 		<h2>login</h2>
-		<form action="">
+		<form action="/login.php" method="post" name="article">
 			<div class="item">
-				<input type="text" required>
-				<label for="">userName</label>
+				<input id="username" type="text" name="username" required>
+				<label for="username">userName</label>
 			</div>
 			<div class="item">
-				<input type="password" required>
-				<label for="">password</label>
+				<input id="password" type="password" name="password" required>
+				<label for="password">password</label>
 			</div>
-			<button class="btn">submit
+			<div>{%login_error%}</div>
+			<button class="btn" onclick="document.article.submit();">submit
 				<span></span>
 				<span></span>
 				<span></span>

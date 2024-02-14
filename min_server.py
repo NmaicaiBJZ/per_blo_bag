@@ -7,13 +7,15 @@ import multiprocessing
 #注意：使用此程序需要使用当前目录下的html目录里面的html文件
 #html文件使用带有超链接的最好，最好可以有图片
 class WSGI_mini_web(object):
-    def __init__(self,port,app,static_path):
+    def __init__(self,port,app,static_path,useranme,userpassword):
         self.tcp_server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.tcp_server_socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         self.tcp_server_socket.bind(('',port))
         self.tcp_server_socket.listen(128)
         self.application = app
         self.static_path = static_path
+        self.useranme = useranme
+        self.userpassword = userpassword
     def server_client(self,new_socket):
         """为客户端返回数据"""
         #接收发送过来的数据
@@ -28,13 +30,27 @@ class WSGI_mini_web(object):
         file_name = ""
         """数据接收到  get /.... 1.1 ...
                 正则表达式匹配该文件的地址"""
-        ret = re.match(r"[^/]+([^ ]*)",repuest_lines[0])
+        ret = re.match(r"([^/]+)([^ ]*)",repuest_lines[0])
+
+        login_true = False
+        cookie_v = ''
         if ret:
-            file_name = ret.group(1)
+            file_name = ret.group(2)
             if file_name == "/":
                 file_name = "/home.html"
 
-        if  file_name.endswith(".html") or file_name.endswith(".md"):
+            if ret.group(1) == "POST ":     # 这里还是有点问题，直接用于对比，可以使用正则匹配，防止小写，或者其他什么原因。
+                post_ret = re.match(r"[^=]+=([^&]*)[^=]+=(.*)",repuest_lines[-1])
+                login_username = post_ret.group(1)
+                login_password = post_ret.group(2)
+                # 字典传入是否认证通过
+                login_true = login_username == self.useranme and login_password == self.userpassword
+            
+            cookie_v = [re.match(r'Cookie: (.*)',i).group(1) for i in repuest_lines if 'Cookie' in i]
+            if cookie_v[0] == 'login_cookie':
+                login_true = True
+
+        if  file_name.endswith(".html") or file_name.endswith(".md") or file_name.endswith(".php"):
             #使用伪静态，，，如果以 html 或者 md 结尾将数据导入框架来执行。。
             env = dict()
             #将数据处理传送到框架上来返回报文头与底
@@ -46,6 +62,8 @@ class WSGI_mini_web(object):
             env['PATH_INFO'] = file_name
             # 字典传入系统访问资源的静态地址
             env['static_path'] = self.static_path
+            # 字典传入操作
+            env['login_true'] = login_true
 
             #body = WSGI_frame.application(env, self.set_response_header)
             body = self.application(env, self.set_response_header)
@@ -110,7 +128,7 @@ def main():
     app = getattr(frame,app_name) #在模块中找app_name中的函数
     # print(app)
     
-    web = WSGI_mini_web(port,app,conf_info['static_path'])
+    web = WSGI_mini_web(port,app,conf_info['static_path'],conf_info['login_username'],conf_info['login_password'])
     web.run()
 
 if __name__ == '__main__':
