@@ -43,18 +43,18 @@
         .scroll_con ul{
             margin-left: 20px;
         }
-        #add_article > *{
+        .article > *{
             display: block;
         }
-        #add_article > label{
+        .article > label{
             margin: 40px 0 0 25%;
         }
-        #add_article > input{
+        .article > input{
             margin: 30px 0 0 30%;
             width: 30%;
             height: 30px;
         }
-        #add_article textarea{
+        .article textarea{
             margin: 30px 0 0 30%;
             width: 60%;
             min-height: 300px;
@@ -64,7 +64,7 @@
             width: 30%;
             margin: 40px auto;
         }
-        .button input{
+        .button > *{
             padding: 5px 20px;
             margin-left: 30px;
         }
@@ -75,43 +75,43 @@
 <div class="count">
     <div class="sidebar">
         <div class="scroll_con">
-            <p>添加文章</p>
+            <p onclick="add_article_butn()">添加文章</p>
             <p>修改文章</p>
             <div id="classify_count"></div>
         </div>
     </div>
-    <form action="/submit_article" method="post" id="add_article" style="display: none;">
+    <form action="/add_article.php" method="post" id="add_article" class="article"  enctype="multipart/form-data">
 
         <label for="article_title">文章标题:</label>
         <input type="text" id="article_title" name="article_title" required>
         
         <label for="article_summary">文章摘要:</label>
-        <textarea id="article_summary" name="article_summary" required></textarea>
+        <textarea id="add_article_summary" name="add_article_summary" required></textarea>
         
-        <label for="article_content">文章内容:</label>
-        <textarea id="article_content" name="article_content" required></textarea>
-        <label for="article_category">文章分类:</label>
-        <input type="text" id="article_category" name="article_category" required>
+        <label for="add_article_content">文章内容:</label>
+        <input type="file" name="image">
+        <label for="add_article_category">文章分类:</label>
+        <input type="text" id="add_article_category" name="add_article_category" required>
         <div class="button">
             <input type="submit" value="提交">
         </div>
     </form>
 
-    <form action="/submit_article" method="post" id="add_article">
+    <form action="/revise_article.php" method="post" id="revise_article" class="article"  style="display: none;" enctype="multipart/form-data">
 
-        <label for="article_title">文章标题:</label>
-        <input type="text" id="article_title" name="article_title" required>
+        <label for="revise_article_title">文章标题:</label>
+        <input type="text" id="revise_article_title" name="revise_article_title" required>
         
-        <label for="article_summary">文章摘要:</label>
-        <textarea id="article_summary" name="article_summary" required></textarea>
+        <label for="revise_article_summary">文章摘要:</label>
+        <textarea id="revise_article_summary" name="revise_article_summary" required></textarea>
         
-        <label for="article_content">文章内容:</label>
-        <textarea id="article_content" name="article_content" required></textarea>
-        <label for="article_category">文章分类:</label>
-        <input type="text" id="article_category" name="article_category" required>
+        <label for="revise_article_content">文章内容:</label>
+        <input type="file" name="image">
+        <label for="revise_article_category">文章分类:</label>
+        <input type="text" id="revise_article_category" name="revise_article_category" required>
         <div class="button">
-            <input type="submit" value="确认修改">
-            <input type="submit" value="删除">
+            <button type="button" onclick="form_add()">添加</button>
+            <button type="button" onclick="form_remove()">删除</button>
         </div>
     </form>
 </div>
@@ -140,6 +140,53 @@
             i.style.height = '100px';
             i.style.height = e.target.scrollHeight + 'px';
         });
+    }
+
+    // 获取添 表单的元素
+    let add_form = document.getElementById('add_article');
+    let revise_form = document.getElementById('revise_article');
+    function add_article_butn(){
+        add_form.style = "display: block;";
+        revise_form.style = "display: none;";
+    }
+
+    // 为修改表单的两个按钮添加方法
+    // 获取表单元素
+    var myForm = document.getElementById('revise_article');
+    function form_add(){
+        
+        // 修改表单的 action
+        myForm.action = "/revise_article.php";
+        // 提交表单
+        myForm.submit();
+    }
+    function form_remove(){
+        // 修改表单的 action
+        myForm.action = "/remove_article.php";
+        // 提交表单
+        myForm.submit();
+    }
+
+    // 当单击修改标签下面的分类后，便为修改页面添加内容
+    function revise_article_butn(path,t,s){
+        add_form.style = "display: none;";
+        revise_form.style = "display: block;";
+
+        let title = decodeURIComponent(escape(window.atob(t)));
+        let article= decodeURIComponent(escape(window.atob(s)));
+
+        document.getElementById('revise_article_title').value = title;
+        document.getElementById('revise_article_summary').value = article;
+        document.getElementById('revise_article_category').value = path.match(/\.\/resources(\/.*)/)[1];
+
+        const yhttp = new XMLHttpRequest();
+        yhttp.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                document.getElementById('revise_article_content').value = this.responseText;
+            }
+        }
+        yhttp.open("GET",`${path}`,true)
+        yhttp.send()
     }
 
     const xhttp = new XMLHttpRequest();
@@ -171,11 +218,13 @@
                         name: segment,
                         point: [],
                         t:'',
-                        file_path:''
+                        file_path:'',
+                        file_abstract:''
                     };
                         if(segment == pathArray.slice(-1)){
                             existingPoint.t = path[1];
                             existingPoint.file_path = path[2];
+                            existingPoint.file_abstract = path[3];
                         }
                         currentLevel.point.push(existingPoint);
                     }
@@ -190,7 +239,9 @@
             function classify_create(classify_tree){
                 // 如果当前的节点不存在子节点
                 if(classify_tree.point == false){
-                    return `<li><a href="${classify_tree.file_path}">${classify_tree.t}<a></li>`;
+                    var t = window.btoa(unescape(encodeURIComponent(classify_tree.t)))
+                    var s = window.btoa(unescape(encodeURIComponent(classify_tree.file_abstract)))
+                    return `<li><a onclick=revise_article_butn('${classify_tree.file_path}','${t}','${s}')>${classify_tree.t}<a></li>`;
                 }else{
                     recode = `<li>${classify_tree.name}</li><ul>`;
                     for(let tree_point of classify_tree.point){
@@ -206,7 +257,7 @@
                 const item = receiveJSONopj[i];
 
                 // 用于处理侧边栏的分类
-                file_path.push([(item['path']+'/'+item['filename']).match(/\.\/resources(\/.*)/)[1],item['title'],item['path']+'/'+item['filename']]);
+                file_path.push([(item['path']+'/'+item['filename']).match(/\.\/resources(\/.*)/)[1],item['title'],item['path']+'/'+item['filename'],item['abstract']]);
             }
 
              // 分类项处理,获取树状结构

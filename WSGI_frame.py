@@ -53,7 +53,6 @@ def page_login(static_path,ret,opt):
 # 用于判断cookie是否通过，如果通过直接给予settin页面，如果不通过将返回登录页面，让用户验证通过
 @route("/setting.html")
 def login_judge(static_path,ret,opt):
-    print(opt['login_true'])
     if opt['login_true']:
         with open(static_path+'/setting.html') as f:
             content = f.read()

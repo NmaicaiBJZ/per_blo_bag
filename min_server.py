@@ -3,6 +3,8 @@ import socket
 #import WSGI_frame
 import sys
 import multiprocessing
+import urllib.parse
+from time import sleep
 
 #注意：使用此程序需要使用当前目录下的html目录里面的html文件
 #html文件使用带有超链接的最好，最好可以有图片
@@ -20,9 +22,10 @@ class WSGI_mini_web(object):
         """为客户端返回数据"""
         #接收发送过来的数据
         repuest = new_socket.recv(1024).decode("utf-8")
-        repuest_lines = repuest.splitlines() # 将数据转弯为列表
+        repuest_lines = repuest.splitlines()  # 将数据转为列表
         print("")
         print(">" * 10)
+        
         #将数据答应到控制台
         print(repuest_lines)
 
@@ -34,21 +37,41 @@ class WSGI_mini_web(object):
 
         login_true = False
         cookie_v = ''
+
         if ret:
             file_name = ret.group(2)
             if file_name == "/":
                 file_name = "/home.html"
 
             if ret.group(1) == "POST ":     # 这里还是有点问题，直接用于对比，可以使用正则匹配，防止小写，或者其他什么原因。
-                post_ret = re.match(r"[^=]+=([^&]*)[^=]+=(.*)",repuest_lines[-1])
-                login_username = post_ret.group(1)
-                login_password = post_ret.group(2)
-                # 字典传入是否认证通过
-                login_true = login_username == self.useranme and login_password == self.userpassword
+                if 'username' in repuest_lines[-1]:
+                    post_ret = re.match(r"[^=]+=([^&]*)[^=]+=(.*)",repuest_lines[-1])
+                    login_username = post_ret.group(1)
+                    login_password = post_ret.group(2)
+                    # 字典传入是否认证通过
+                    login_true = login_username == self.useranme and login_password == self.userpassword
+                elif 'revise_article_title' in repuest_lines[-1]:
+                    new_socket.setblocking(False)
+                    data = b''
+                    sleep(0.5)
+                    try:
+                        while True:
+                            data += new_socket.recv(1024)
+                    except socket.error as e:
+                        # 当没有接收到数据时，报错并跳出循环
+                        pass
+                    print(data)
+                    # data = repuest_lines[-1].split('&')
+                    
+                    # revise_article_title = urllib.parse.unquote(data[0].split('=')[1])
+                    # revise_article_summary = urllib.parse.unquote(data[1].split('=')[1])
+                    # revise_article_content = urllib.parse.unquote(data[2].split('=')[1])
+                    # print(urllib.parse.unquote(revise_article_content))
             
             cookie_v = [re.match(r'Cookie: (.*)',i).group(1) for i in repuest_lines if 'Cookie' in i]
-            if cookie_v[0] == 'login_cookie':
-                login_true = True
+            if cookie_v:
+                if cookie_v[0] == 'login_cookie':
+                    login_true = True
 
         if  file_name.endswith(".html") or file_name.endswith(".md") or file_name.endswith(".php"):
             #使用伪静态，，，如果以 html 或者 md 结尾将数据导入框架来执行。。
