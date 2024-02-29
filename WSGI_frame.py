@@ -20,7 +20,7 @@ def route(url):
 			
 @route("/home.html")
 def index(static_path,ret,opt):
-    with open(static_path+'/home.html') as f:
+    with open(static_path+'/home.html', encoding="utf-8") as f:
         content = f.read()
     return content
 
@@ -29,7 +29,7 @@ def index(static_path,ret,opt):
 def markdown_handle(static_path,ret,opt):
     # with open(static_path+ret.group(1)+ret.group(2)) as f:
     #     md_content = f.read()
-    with open(static_path+'/read.html') as f:
+    with open(static_path+'/read.html', encoding="utf-8") as f:
         content = f.read()
 
     content = re.sub(r'\{%markdown_file%\}',ret.group(1)+ret.group(2),content)
@@ -40,11 +40,11 @@ def markdown_handle(static_path,ret,opt):
 @route("/login.php")
 def page_login(static_path,ret,opt):
     if opt['login_true']:
-        with open(static_path+'/setting.html') as f:
+        with open(static_path+'/setting.html', encoding="utf-8") as f:
             content = f.read()
         opt['start_respense']('200 OK',[('Content-Type','text/html;charset=utf-8'),('Set-Cookie','login_cookie')])
     else:
-        with open(static_path+'/login.html') as f:
+        with open(static_path+'/login.html', encoding="utf-8") as f:
             content = f.read()
         content = re.sub(r'\{%login_error%\}','登录失败，用户名或者密码错误',content) 
 
@@ -55,10 +55,10 @@ def page_login(static_path,ret,opt):
 def login_judge(static_path,ret,opt):
     print(opt['login_true'])
     if opt['login_true']:
-        with open(static_path+'/setting.html') as f:
+        with open(static_path+'/setting.html', encoding="utf-8") as f:
             content = f.read()
     else:
-        with open(static_path+'/login.html') as f:
+        with open(static_path+'/login.html', encoding="utf-8") as f:
             content = f.read()
     content = re.sub(r'\{%login_error%\}','',content)    
 
@@ -85,7 +85,7 @@ def application(env,start_respense):
             if ret:             #判断ret是否为空，不为空调用func引用的函数
                 return func(static_path,ret,opt)
         else:
-                with open(static_path+file_name) as f:
+                with open(static_path+file_name, encoding="utf-8") as f:
                     content = f.read()
                 return content
 
