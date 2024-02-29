@@ -35,8 +35,12 @@ class WSGI_mini_web(object):
                 正则表达式匹配该文件的地址"""
         ret = re.match(r"([^/]+)([^ ]*)",repuest_lines[0])
 
+        # 判断是否能直接通过
         login_true = False
+        # 判断cookie是否存在
         cookie_v = ''
+        # 关于form提交需要添加或者修改的内容
+        file_option = b''
 
         if ret:
             file_name = ret.group(2)
@@ -50,7 +54,7 @@ class WSGI_mini_web(object):
                     login_password = post_ret.group(2)
                     # 字典传入是否认证通过
                     login_true = login_username == self.useranme and login_password == self.userpassword
-                elif 'revise_article_title' in repuest_lines[-1]:
+                else:
                     new_socket.setblocking(False)
                     data = b''
                     sleep(0.5)
@@ -60,13 +64,7 @@ class WSGI_mini_web(object):
                     except socket.error as e:
                         # 当没有接收到数据时，报错并跳出循环
                         pass
-                    print(data)
-                    # data = repuest_lines[-1].split('&')
-                    
-                    # revise_article_title = urllib.parse.unquote(data[0].split('=')[1])
-                    # revise_article_summary = urllib.parse.unquote(data[1].split('=')[1])
-                    # revise_article_content = urllib.parse.unquote(data[2].split('=')[1])
-                    # print(urllib.parse.unquote(revise_article_content))
+                    file_option = data
             
             cookie_v = [re.match(r'Cookie: (.*)',i).group(1) for i in repuest_lines if 'Cookie' in i]
             if cookie_v:
@@ -87,6 +85,8 @@ class WSGI_mini_web(object):
             env['static_path'] = self.static_path
             # 字典传入操作
             env['login_true'] = login_true
+            # 字典传入需要操作的内容
+            env['file_option'] = file_option
 
             #body = WSGI_frame.application(env, self.set_response_header)
             body = self.application(env, self.set_response_header)

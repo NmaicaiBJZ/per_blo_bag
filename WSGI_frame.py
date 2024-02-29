@@ -63,6 +63,22 @@ def login_judge(static_path,ret,opt):
 
     return content
 
+# 用于修改文件内容、标题、摘要与分类
+@route("/revise_article.php")
+def revise_article(static_path,ret,opt):
+    print(opt['file_option'])
+    return '修改成功'
+
+# 用于添加文件内容、标题、摘要与分类
+@route("/add_article.php")
+def add_article(static_path,ret,opt):
+    pass
+
+# 用于删除文件内容、标题、摘要与分类
+@route("/remove_article.php")
+def remove_article(static_path,ret,opt):
+    pass
+
 def application(env,start_respense):
     # 返回响应的表头
     start_respense('200 OK' , [('Content-Type','text/html;charset=utf-8')])
@@ -76,6 +92,8 @@ def application(env,start_respense):
     opt["login_true"] = env["login_true"]
     # 字典设置响应的表头
     opt["start_respense"] = start_respense
+    # 字典传入需要操作的值
+    opt["file_option"] = env["file_option"]
 
     try:
         for url, func in URL_FUNC_DICT.items():   
