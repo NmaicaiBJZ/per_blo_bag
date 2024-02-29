@@ -138,7 +138,7 @@ class WSGI_mini_web(object):
 
 def main():
 
-    with open("./web_server.conf") as f:
+    with open("./web_server.conf", encoding="utf-8") as f:
         conf_info = eval(f.read())
 
     frame_name = conf_info["frame_name"]    # 使用的框架名
