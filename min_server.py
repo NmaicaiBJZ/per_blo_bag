@@ -40,11 +40,14 @@ class WSGI_mini_web(object):
                 file_name = "/home.html"
 
             if ret.group(1) == "POST ":     # 这里还是有点问题，直接用于对比，可以使用正则匹配，防止小写，或者其他什么原因。
-                post_ret = re.match(r"[^=]+=([^&]*)[^=]+=(.*)",repuest_lines[-1])
-                login_username = post_ret.group(1)
-                login_password = post_ret.group(2)
-                # 字典传入是否认证通过
-                login_true = login_username == self.useranme and login_password == self.userpassword
+                if 'username' in repuest_lines[-1]:
+                    post_ret = re.match(r"[^=]+=([^&]*)[^=]+=(.*)",repuest_lines[-1])
+                    login_username = post_ret.group(1)
+                    login_password = post_ret.group(2)
+                    # 字典传入是否认证通过
+                    login_true = login_username == self.useranme and login_password == self.userpassword
+                else:
+                    pass
             
             cookie_v = [re.match(r'Cookie: (.*)',i).group(1) for i in repuest_lines if 'Cookie' in i]
             if cookie_v[0] == 'login_cookie':
