@@ -80,16 +80,16 @@
             <div id="classify_count"></div>
         </div>
     </div>
-    <form action="/add_article.php" method="post" id="add_article" class="article"  enctype="multipart/form-data">
+    <form action="/add_article.php" method="post" id="add_article" class="article">
 
         <label for="article_title">文章标题:</label>
         <input type="text" id="article_title" name="article_title" required>
         
-        <label for="article_summary">文章摘要:</label>
+        <label for="add_article_summary">文章摘要:</label>
         <textarea id="add_article_summary" name="add_article_summary" required></textarea>
         
         <label for="add_article_content">文章内容:</label>
-        <input type="file" name="image">
+        <textarea id="add_article_content" name="add_article_content" required></textarea>
         <label for="add_article_category">文章分类:</label>
         <input type="text" id="add_article_category" name="add_article_category" required>
         <div class="button">
@@ -97,7 +97,7 @@
         </div>
     </form>
 
-    <form action="/revise_article.php" method="post" id="revise_article" class="article"  style="display: none;" enctype="multipart/form-data">
+    <form action="/revise_article.php" method="post" id="revise_article" class="article"  style="display: none;">
 
         <label for="revise_article_title">文章标题:</label>
         <input type="text" id="revise_article_title" name="revise_article_title" required>
@@ -106,7 +106,7 @@
         <textarea id="revise_article_summary" name="revise_article_summary" required></textarea>
         
         <label for="revise_article_content">文章内容:</label>
-        <input type="file" name="image">
+        <textarea id="revise_article_content" name="revise_article_content" required></textarea>
         <label for="revise_article_category">文章分类:</label>
         <input type="text" id="revise_article_category" name="revise_article_category" required>
         <div class="button">
