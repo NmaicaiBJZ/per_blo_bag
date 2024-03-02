@@ -86,12 +86,12 @@
         <input type="text" id="article_title" name="article_title" required>
         
         <label for="article_summary">文章摘要:</label>
-        <textarea id="add_article_summary" name="add_article_summary" required></textarea>
+        <textarea id="article_summary" name="article_summary" required></textarea>
         
-        <label for="add_article_content">文章内容:</label>
-        <input type="file" name="image">
-        <label for="add_article_category">文章分类:</label>
-        <input type="text" id="add_article_category" name="add_article_category" required>
+        <label for="article_content">文章内容:</label>
+        <input type="file" name="article_content">
+        <label for="article_category">文章分类:</label>
+        <input type="text" id="article_category" name="article_category" required>
         <div class="button">
             <input type="submit" value="提交">
         </div>
@@ -99,16 +99,16 @@
 
     <form action="/revise_article.php" method="post" id="revise_article" class="article"  style="display: none;" enctype="multipart/form-data">
 
-        <label for="revise_article_title">文章标题:</label>
-        <input type="text" id="revise_article_title" name="revise_article_title" required>
+        <label for="article_title">文章标题:</label>
+        <input type="text" id="article_title" name="article_title" required>
         
-        <label for="revise_article_summary">文章摘要:</label>
-        <textarea id="revise_article_summary" name="revise_article_summary" required></textarea>
+        <label for="article_summary">文章摘要:</label>
+        <textarea id="article_summary" name="article_summary" required></textarea>
         
-        <label for="revise_article_content">文章内容:</label>
-        <input type="file" name="image">
-        <label for="revise_article_category">文章分类:</label>
-        <input type="text" id="revise_article_category" name="revise_article_category" required>
+        <label for="article_content">文章内容:</label>
+        <input type="file" name="article_content">
+        <label for="article_category">文章分类:</label>
+        <input type="text" id="article_category" name="article_category" required>
         <div class="button">
             <button type="button" onclick="form_add()">添加</button>
             <button type="button" onclick="form_remove()">删除</button>

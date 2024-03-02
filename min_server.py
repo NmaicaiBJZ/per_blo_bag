@@ -1,9 +1,8 @@
 import re
 import socket
 #import WSGI_frame
-import sys
+# import sys
 import multiprocessing
-import urllib.parse
 from time import sleep
 
 #注意：使用此程序需要使用当前目录下的html目录里面的html文件
