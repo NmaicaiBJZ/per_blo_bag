@@ -1,5 +1,7 @@
 import re
 import json
+import time
+from os import remove
 
 URL_FUNC_DICT = dict()
 
@@ -68,6 +70,8 @@ def login_judge(static_path,ret,opt):
 # 用于添加文件内容、标题、摘要与分类
 @route("/(add|revise)_article.php")
 def opt_article(static_path,ret,opt):
+    # 获取请求的指示
+    option = ret.group(1)
     # ------WebKit 表示 http 表单 multipart/form-data 发送的数据会使用这个来分隔每个字符的数据
     target_sequence = b'------WebKit'
     # 用于 re 匹配到发送的 name 参数
@@ -86,7 +90,6 @@ def opt_article(static_path,ret,opt):
         if_file_data = False
         # 创建一个字典用于保存到 resources 中的user.json文件中
         add_data = dict()
-        
 
         # 用于遍历整个文件
         for line in f:
@@ -103,7 +106,7 @@ def opt_article(static_path,ret,opt):
             elif target_parameter in line:
                 line_text = line.decode("utf-8")
                 parameter_name = re.search(r'name=\"(.*?)\"',line_text).group(1)
-                if parameter_name == "revise_article_content":
+                if parameter_name == option+"_article_content":
                     parameter_data = re.search(r'filename=\"(.*)"',line_text).group(1)
                     if_file_data = True
                 if_get_data = True
@@ -113,16 +116,26 @@ def opt_article(static_path,ret,opt):
         # 用于测试json传送过来的数据是否正确
         print(add_data)
 
-        # # 将得到的文件保存在指定目录下
-        # with open(static_path+'/resources'+add_data["revise_article_category"],"wb") as copy_f:
-        #     copy_f.write(file_data)
+        # 将得到的文件保存在指定目录下
+        with open(static_path+'/resources'+add_data[option+"_article_category"],"wb") as copy_f:
+            copy_f.write(file_data)
 
-        # with open(static_path+"/resources/user.json","w+",encoding="utf-8") as json_file:
-        #     json_data = json.load(json_file)
-        #     json_data.append({"filename":add_data["article_content"],"path":static_path+'/resources'+add_data["article_category"],"title":add_data["article_title"],"abstract":add_data["article_summary"]})
-        #     json.dump(json_data, json_file, indent=4)
-
-            
+        # 读取数据
+        with open(static_path+"/resources/user.json","r",encoding="utf-8") as json_file:
+            json_data = json.load(json_file)
+            json_data.append({"filename":add_data[option+"_article_content"],"path":'./resources'+add_data[option+"_article_category"],"title":add_data[option+"_article_title"],"abstract":add_data[option+"_article_summary"],"time":time.strftime('%Y-%m-%d',time.localtime())})
+        # 上锁
+        opt['lock'].acquire()
+        # 打开文件，当w打开的时候将会把文件删除
+        try:
+            with open(static_path+"/resources/user.json","w",encoding="utf-8") as json_file:
+                json.dump(json_data, json_file, indent=4, ensure_ascii=False)
+        except Exception as e:
+            raise e
+        finally:
+            # 解锁
+            opt['lock'].release()
+        # print(json_data)
     return '修改成功'
 
 # 用于添加文件内容、标题、摘要与分类
@@ -133,7 +146,27 @@ def opt_article(static_path,ret,opt):
 # 用于删除文件内容、标题、摘要与分类
 @route("/remove_article.php")
 def remove_article(static_path,ret,opt):
-    pass
+    print(opt["file_option"])
+    # 读取数据
+    with open(static_path+"/resources/user.json","r",encoding="utf-8") as json_file:
+        json_data = json.load(json_file)
+        # 删除对应路径的文件的json记录
+        json_data = [i for i in json_data if  not opt["file_option"] in i["path"]+'/'+i["filename"]]
+    # 上锁
+    opt['lock'].acquire()
+    # 打开文件，当w打开的时候将会把文件删除
+    try:
+        with open(static_path+"/resources/user.json","w",encoding="utf-8") as json_file:
+            json.dump(json_data, json_file, indent=4, ensure_ascii=False)
+    except Exception as e:
+        raise e
+    finally:
+        # 解锁
+        opt['lock'].release()
+
+    remove(static_path+"/resources"+opt["file_option"])
+    
+    return ""
 
 def application(env,start_respense):
     # 返回响应的表头
@@ -150,6 +183,8 @@ def application(env,start_respense):
     opt["start_respense"] = start_respense
     # 字典传入需要操作的值
     opt["file_option"] = env["file_option"]
+    # 进程锁
+    opt["lock"] = env['lock']
 
     try:
         for url, func in URL_FUNC_DICT.items():   

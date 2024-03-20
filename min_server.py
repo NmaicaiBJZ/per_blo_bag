@@ -17,7 +17,7 @@ class WSGI_mini_web(object):
         self.static_path = static_path
         self.useranme = useranme
         self.userpassword = userpassword
-    def server_client(self,new_socket):
+    def server_client(self,new_socket,lock):
         """为客户端返回数据"""
         #接收发送过来的数据
         repuest = new_socket.recv(1024).decode("utf-8")
@@ -53,6 +53,8 @@ class WSGI_mini_web(object):
                     login_password = post_ret.group(2)
                     # 字典传入是否认证通过
                     login_true = login_username == self.useranme and login_password == self.userpassword
+                elif 'revise_article_category' in repuest_lines[-1]:
+                    file_option = re.match(r'revise_article_category=(.*)',repuest_lines[-1]).group(1)
                 else:
                     new_socket.setblocking(False)
                     data = b''
@@ -86,6 +88,8 @@ class WSGI_mini_web(object):
             env['login_true'] = login_true
             # 字典传入需要操作的内容
             env['file_option'] = file_option
+            # 字段传入进程锁
+            env['lock'] = lock
 
             #body = WSGI_frame.application(env, self.set_response_header)
             body = self.application(env, self.set_response_header)
@@ -129,7 +133,9 @@ class WSGI_mini_web(object):
     def run(self):
         while True:
             new_socket , cliemt_addr=self.tcp_server_socket.accept()
-            p = multiprocessing.Process(target = self.server_client, args=(new_socket,))
+            # 创建一个锁，为之后修改文件使用
+            lock = multiprocessing.Lock()
+            p = multiprocessing.Process(target = self.server_client, args=(new_socket,lock))
             p.start()
             new_socket.close()
         self.tcp_server_socket.close()

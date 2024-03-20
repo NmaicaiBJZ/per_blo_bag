@@ -82,16 +82,16 @@
     </div>
     <form action="/add_article.php" method="post" id="add_article" class="article"  enctype="multipart/form-data">
 
-        <label for="article_title">文章标题:</label>
-        <input type="text" id="article_title" name="article_title" required>
+        <label for="add_article_title">文章标题:</label>
+        <input type="text" id="add_article_title" name="add_article_title" required>
         
-        <label for="article_summary">文章摘要:</label>
-        <textarea id="article_summary" name="article_summary" required></textarea>
+        <label for="add_article_summary">文章摘要:</label>
+        <textarea id="add_article_summary" name="add_article_summary" required></textarea>
         
-        <label for="article_content">文章内容:</label>
-        <input type="file" name="article_content">
-        <label for="article_category">文章分类:</label>
-        <input type="text" id="article_category" name="article_category" required>
+        <label for="add_article_content">文章内容:</label>
+        <input type="file" name="add_article_content">
+        <label for="add_article_category">文章分类:</label>
+        <input type="text" id="add_article_category" name="add_article_category" required>
         <div class="button">
             <input type="submit" value="提交">
         </div>
@@ -99,16 +99,16 @@
 
     <form action="/revise_article.php" method="post" id="revise_article" class="article"  style="display: none;" enctype="multipart/form-data">
 
-        <label for="article_title">文章标题:</label>
-        <input type="text" id="article_title" name="article_title" required>
+        <label for="revise_article_title">文章标题:</label>
+        <input type="text" id="revise_article_title" name="revise_article_title" required>
         
-        <label for="article_summary">文章摘要:</label>
-        <textarea id="article_summary" name="article_summary" required></textarea>
+        <label for="revise_article_summary">文章摘要:</label>
+        <textarea id="revise_article_summary" name="revise_article_summary" required></textarea>
         
-        <label for="article_content">文章内容:</label>
-        <input type="file" name="article_content">
-        <label for="article_category">文章分类:</label>
-        <input type="text" id="article_category" name="article_category" required>
+        <label for="revise_article_content">文章内容:</label>
+        <input type="file" name="revise_article_content">
+        <label for="revise_article_category">文章分类:</label>
+        <input type="text" id="revise_article_category" name="revise_article_category" required>
         <div class="button">
             <button type="button" onclick="form_add()">添加</button>
             <button type="button" onclick="form_remove()">删除</button>
@@ -161,10 +161,16 @@
         myForm.submit();
     }
     function form_remove(){
-        // 修改表单的 action
-        myForm.action = "/remove_article.php";
-        // 提交表单
-        myForm.submit();
+        const tit = document.getElementById('revise_article_category').value
+        const xxh = new XMLHttpRequest();
+        xxh.open('POST', '/remove_article.php', true);
+        xxh.onreadystatechange = function(){
+            if (xxh.readyState === 4 && xxh.status === 200) {
+                    location.reload()
+                    alert("删除成功")
+                }
+        }
+        xxh.send(`revise_article_category=${tit}`)
     }
 
     // 当单击修改标签下面的分类后，便为修改页面添加内容
